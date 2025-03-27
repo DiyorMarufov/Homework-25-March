@@ -2,7 +2,6 @@ import { join } from "path";
 import { v4 } from "uuid";
 import { readFile } from "../libs/readFile.js";
 import { writeFile } from "../libs/writeFile.js";
-import { log } from "console";
 
 export const todoList = [];
 
@@ -31,11 +30,15 @@ export const todoController = {
   update: (req, res, next) => {
     try {
       const id = req.params.id;
-      const body = req.body;
+      const {title} = req.body;    
       
+      let todoList = readFile(listPathFile)
       
-      let toDoList = readFile(listPathFile)
+      if(!Array.isArray(todoList)) todoList = []
+
       const todoIndex = todoList.findIndex((todo) => todo.id === id);
+      
+      
       
       
       if (todoIndex === -1) {
@@ -46,16 +49,14 @@ export const todoController = {
         return;
       }
 
-      const oldList = toDoList[todoIndex] 
       const update = {
-        ...oldList,
-        ...body,
+        ...todoList[todoIndex],
+        ...title,
       };
-      
-      
       
       todoList.splice(todoIndex, 1, update);
       writeFile(listPathFile,todoList)
+      
       res.json({
         message: "updated",
         ok: true,
